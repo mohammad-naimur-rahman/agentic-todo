@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input'
 import { useChat } from '@ai-sdk/react'
-import { IconRobot, IconUserCircle } from '@tabler/icons-react'
+import { IconCloud, IconRobot, IconUserCircle } from '@tabler/icons-react'
 
 export default function Homepage() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -12,13 +12,22 @@ export default function Homepage() {
         id: 'system-1',
         role: 'system',
         content:
-          'You are a helpful AI assistant that provides clear and concise answers.'
+          'You are a helpful AI assistant that provides clear and concise answers. You can also check the weather for a location when asked. For example, if the user asks "What\'s the weather in New York?", you can use your weather tool to provide that information.'
       }
     ]
   })
 
   return (
     <div className='flex flex-col w-full max-w-lg py-24 mx-auto stretch min-h-screen'>
+      {/* Header */}
+      <div className='mb-8 text-center'>
+        <h1 className='text-2xl font-bold mb-2'>AI Assistant with Weather</h1>
+        <p className='text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2'>
+          <IconCloud className='size-5' />
+          Ask me anything, including the weather!
+        </p>
+      </div>
+
       <div className='flex flex-col gap-2'>
         {messages.map(m => (
           <div
@@ -30,7 +39,10 @@ export default function Homepage() {
             ) : m.role === 'assistant' ? (
               <IconRobot className='size-5 min-w-5 mt-1 text-emerald-600' />
             ) : null}
-            {m.role !== 'system' && (
+
+            {m.toolInvocations ? (
+              <pre>{JSON.stringify(m.toolInvocations, null, 2)}</pre>
+            ) : (
               <p className='text-gray-600 dark:text-gray-300'>{m.content}</p>
             )}
           </div>
@@ -39,7 +51,7 @@ export default function Homepage() {
       <form onSubmit={handleSubmit} className='mt-auto'>
         <Input
           value={input}
-          placeholder='Say something...'
+          placeholder='Say something or ask about the weather...'
           onChange={handleInputChange}
           className='mt-4'
         />
