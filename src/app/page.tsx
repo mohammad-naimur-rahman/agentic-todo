@@ -6,47 +6,21 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function Homepage() {
-  const router = useRouter()
+  const { push } = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is authenticated
-    const token = Cookies.get('token')
-
-    if (!token) {
-      window.location.href = '/auth/signin'
-      return
-    }
-
-    // Decode token to get user info (without verification, just for display)
-    try {
-      const base64Url = token.split('.')[1]
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-      const payload = JSON.parse(window.atob(base64))
-      setUserEmail(payload.email)
-    } catch (error) {
-      console.error('Error decoding token:', error)
-      // If token can't be decoded, it might be invalid
-      Cookies.remove('token')
-      window.location.href = '/auth/signin'
-    } finally {
-      setIsLoading(false)
+    const user = Cookies.get('user')
+    if (user) {
+      console.log(user)
+      setUserEmail(JSON.parse(user).email)
     }
   }, [])
 
   const handleSignOut = () => {
     Cookies.remove('token')
-    window.location.href = '/auth/signin'
-  }
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className='flex flex-col items-center justify-center min-h-screen'>
-        <p>Loading...</p>
-      </div>
-    )
+    Cookies.remove('user')
+    push('/auth/signin')
   }
 
   return (

@@ -193,7 +193,7 @@ export function TodoList() {
   }
 
   return (
-    <div className='w-full max-w-lg mx-auto flex flex-col h-[80vh]'>
+    <div className='w-full max-w-lg mx-auto flex flex-col h-[72vh]'>
       {/* Header Section - Fixed at top */}
       <div className='flex-none'>
         {/* Command Result */}

@@ -39,12 +39,21 @@ export default function SigninPage() {
 
       const data = await response.json()
 
+      console.log(data)
+
       if (!response.ok) {
         throw new Error(data.error || 'Invalid credentials')
       }
 
       // Store token in cookie with proper configuration
       Cookies.set('token', data.token, {
+        expires: 7,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax' // Changed from 'strict' to 'lax' for better compatibility
+      })
+
+      Cookies.set('user', JSON.stringify(data.user), {
         expires: 7,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
