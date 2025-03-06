@@ -193,107 +193,115 @@ export function TodoList() {
   }
 
   return (
-    <div className='w-full max-w-md mx-auto'>
-      <h1 className='text-2xl font-bold mb-6 text-center'>Todo List</h1>
-
-      {/* Add Todo Form */}
-      <form onSubmit={addTodo} className='flex gap-2 mb-6'>
-        <Input
-          type='text'
-          value={newTodo}
-          onChange={e => setNewTodo(e.target.value)}
-          placeholder='Add a new todo...'
-          className='flex-1'
-          disabled={addingTodo}
-        />
-        <button
-          type='submit'
-          className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
-          aria-label='Add todo'
-          disabled={addingTodo}
-        >
-          {addingTodo ? (
-            <IconLoader2 size={20} className='animate-spin' />
-          ) : (
-            <IconPlus size={20} />
-          )}
-        </button>
-      </form>
-
-      {/* Command Input */}
-      <form onSubmit={processCommand} className='flex gap-2 mb-6'>
-        <Input
-          type='text'
-          value={command}
-          onChange={e => setCommand(e.target.value)}
-          placeholder="Enter a command (e.g., 'Add a todo: Buy groceries')"
-          className='flex-1'
-          disabled={loading}
-        />
-        <button
-          type='submit'
-          className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
-          aria-label='Send command'
-          disabled={loading}
-        >
-          {loading ? (
-            <IconLoader2 size={20} className='animate-spin' />
-          ) : (
-            <IconSend size={20} />
-          )}
-        </button>
-      </form>
-
-      {/* Command Result */}
-      {commandResult && (
-        <div className='mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-md text-sm'>
-          {commandResult}
-        </div>
-      )}
-
-      {/* Todo List */}
-      <div className='space-y-1 mb-4 relative'>
-        {loading && todos.length === 0 && (
-          <div className='flex justify-center items-center py-8'>
-            <IconLoader2 size={24} className='animate-spin text-gray-400' />
+    <div className='w-full max-w-lg mx-auto flex flex-col h-[80vh]'>
+      {/* Header Section - Fixed at top */}
+      <div className='flex-none'>
+        {/* Command Result */}
+        {commandResult && (
+          <div className='mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-md text-sm'>
+            {commandResult}
           </div>
-        )}
-
-        {!loading && todos.length === 0 ? (
-          <p className='text-center text-gray-500 dark:text-gray-400 py-4'>
-            No todos yet. Add one above!
-          </p>
-        ) : (
-          todos.map(todo => (
-            <Todo
-              key={todo._id}
-              id={todo._id}
-              text={todo.text}
-              completed={todo.completed}
-              onToggle={toggleTodo}
-              onDelete={deleteTodo}
-              isToggling={togglingTodo === todo._id}
-              isDeleting={deletingTodo === todo._id}
-            />
-          ))
         )}
       </div>
 
-      {/* Clear All Button */}
-      {todos.length > 0 && (
-        <button
-          onClick={clearTodos}
-          className='flex items-center gap-2 text-red-500 hover:text-red-600 text-sm mx-auto disabled:opacity-50 disabled:cursor-not-allowed'
-          disabled={clearingTodos}
-        >
-          {clearingTodos ? (
-            <IconLoader2 size={16} className='animate-spin' />
-          ) : (
-            <IconTrash size={16} />
+      {/* Todo List - Scrollable */}
+      <div className='flex-grow overflow-y-auto my-4 pr-1'>
+        <div className='space-y-1 relative'>
+          {loading && todos.length === 0 && (
+            <div className='flex justify-center items-center py-8'>
+              <IconLoader2 size={24} className='animate-spin text-gray-400' />
+            </div>
           )}
-          Clear All Todos
-        </button>
-      )}
+
+          {!loading && todos.length === 0 ? (
+            <p className='text-center text-gray-500 dark:text-gray-400 py-4 italic'>
+              No todos yet. Add one below!
+            </p>
+          ) : (
+            todos.map(todo => (
+              <Todo
+                key={todo._id}
+                id={todo._id}
+                text={todo.text}
+                completed={todo.completed}
+                onToggle={toggleTodo}
+                onDelete={deleteTodo}
+                isToggling={togglingTodo === todo._id}
+                isDeleting={deletingTodo === todo._id}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Clear All Button */}
+        {todos.length > 0 && (
+          <div className='mt-4 text-center'>
+            <button
+              onClick={clearTodos}
+              className='flex items-center gap-2 text-red-500 hover:text-red-600 text-sm mx-auto disabled:opacity-50 disabled:cursor-not-allowed'
+              disabled={clearingTodos}
+            >
+              {clearingTodos ? (
+                <IconLoader2 size={16} className='animate-spin' />
+              ) : (
+                <IconTrash size={16} />
+              )}
+              Clear All Todos
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Input Section - Fixed at bottom */}
+      <div className='flex-none mt-auto'>
+        {/* Add Todo Form */}
+        <form onSubmit={addTodo} className='flex gap-2 mb-3'>
+          <Input
+            type='text'
+            value={newTodo}
+            onChange={e => setNewTodo(e.target.value)}
+            placeholder='Add a new todo...'
+            className='flex-1'
+            disabled={addingTodo}
+          />
+          <button
+            type='submit'
+            className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
+            aria-label='Add todo'
+            disabled={addingTodo}
+          >
+            {addingTodo ? (
+              <IconLoader2 size={20} className='animate-spin' />
+            ) : (
+              <IconPlus size={20} />
+            )}
+          </button>
+        </form>
+
+        {/* Command Input */}
+        <form onSubmit={processCommand} className='flex gap-2'>
+          <Input
+            type='text'
+            value={command}
+            onChange={e => setCommand(e.target.value)}
+            placeholder="Enter a command (e.g., 'Add a todo: Buy groceries')"
+            className='flex-1'
+            disabled={loading}
+          />
+          <button
+            type='submit'
+            className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
+            aria-label='Send command'
+            disabled={loading}
+          >
+            {loading ? (
+              <IconLoader2 size={20} className='animate-spin' />
+            ) : (
+              <IconSend size={20} />
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
