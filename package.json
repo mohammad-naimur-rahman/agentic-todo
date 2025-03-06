@@ -13,10 +13,14 @@
     "@ai-sdk/react": "^1.1.20",
     "@tabler/icons-react": "^3.30.0",
     "ai": "^4.1.50",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
     "next": "15.2.0",
+    "next-auth": "^4.24.11",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -29,6 +33,9 @@
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.21.0",
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/js-cookie": "^3.0.6",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -37,5 +44,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@latest"
+  "packageManager": "pnpm"
 }
