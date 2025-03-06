@@ -5,16 +5,17 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // GET a specific todo
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     await connectDB()
     const { success, userId, error } = await needAuth()
     if (!success) {
       return NextResponse.json({ error }, { status: 401 })
     }
-    const todo = await Todo.findOne({ _id: params.id, userId })
+    const todo = await Todo.findOne({ _id: id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })
@@ -30,8 +31,9 @@ export async function GET(
 // PATCH to update a todo
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const body = await request.json()
 
@@ -40,7 +42,7 @@ export async function PATCH(
     if (!success) {
       return NextResponse.json({ error }, { status: 401 })
     }
-    const todo = await Todo.findOne({ _id: params.id, userId })
+    const todo = await Todo.findOne({ _id: id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })
@@ -63,16 +65,17 @@ export async function PATCH(
 
 // DELETE a specific todo
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     await connectDB()
     const { success, userId, error } = await needAuth()
     if (!success) {
       return NextResponse.json({ error }, { status: 401 })
     }
-    const todo = await Todo.findOneAndDelete({ _id: params.id, userId })
+    const todo = await Todo.findOneAndDelete({ _id: id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })
