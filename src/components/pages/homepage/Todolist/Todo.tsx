@@ -1,6 +1,6 @@
+'use client'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconLoader2, IconTrash } from '@tabler/icons-react'
-import { useState } from 'react'
 
 interface TodoProps {
   id: string
@@ -21,18 +21,14 @@ export function Todo({
   isToggling = false,
   isDeleting = false
 }: TodoProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-3 mb-2 rounded-lg transition-all',
+        'flex items-center justify-between p-3 mb-2 rounded-lg transition-all group',
         completed
           ? 'bg-gray-100 dark:bg-gray-800'
           : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700'
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className='flex items-center gap-3 flex-1'>
         <button
@@ -67,8 +63,7 @@ export function Todo({
       <button
         onClick={() => onDelete(id)}
         className={cn(
-          'text-gray-400 hover:text-red-500 transition-colors cursor-pointer',
-          isHovered ? 'opacity-100' : 'opacity-0',
+          'text-gray-400 hover:text-red-500 transition-colors cursor-pointer group-hover:opacity-100 opacity-0',
           isDeleting ? 'opacity-50 cursor-not-allowed' : ''
         )}
         aria-label='Delete todo'

@@ -1,8 +1,9 @@
+'use client'
+import { Input } from '@/components/ui/input'
 import { IconLoader2, IconPlus, IconSend, IconTrash } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Todo } from './Todo'
-import { Input } from './ui/input'
 
 interface TodoItem {
   _id: string
