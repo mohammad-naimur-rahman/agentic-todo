@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Todo App
+
+A modern todo application with natural language command capabilities built with Next.js, TypeScript, MongoDB, and Zod.
+
+## Features
+
+- Add, update, delete, and mark todos as complete/incomplete through the UI
+- Use natural language commands to manage your todos
+- MongoDB database for persistent storage
+- TypeScript and Zod for type safety and validation
+
+## Natural Language Commands
+
+The app supports various natural language commands, such as:
+
+- **Add a todo**: `Add a todo buy groceries`
+- **Mark as done**: `Mark buy groceries as done`
+- **Mark as undone**: `Mark buy groceries as not done`
+- **Delete a todo**: `Delete buy groceries`
+- **Clear all todos**: `Clear the todo list` or `Reset the todo`
+- **Mark multiple todos**: `Mark the first todo as done` or `Mark the last 3 todos as done`
+
+The app uses fuzzy matching to find the closest matching todo when you use commands.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ and npm/pnpm
+- MongoDB (local or Atlas)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+3. Create a `.env.local` file based on `.env.example` and add your MongoDB connection string:
+   ```
+   MONGODB_URI=mongodb://localhost:27017/todo-app
+   ```
+
+### Running the Development Server
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Mongoose
+- **Validation**: Zod
+- **Language**: TypeScript
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `/src/app` - Next.js app router
+- `/src/components` - React components
+- `/src/lib` - Utility functions and database models
+- `/src/app/api` - API routes for CRUD operations
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

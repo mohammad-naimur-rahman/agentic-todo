@@ -15,6 +15,7 @@
     "ai": "^4.1.50",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "mongoose": "^8.12.1",
     "next": "15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
