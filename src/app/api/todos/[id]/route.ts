@@ -1,3 +1,4 @@
+import { needAuth } from '@/lib/auth'
 import connectDB from '@/lib/db'
 import { Todo } from '@/lib/models/todo'
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,7 +10,11 @@ export async function GET(
 ) {
   try {
     await connectDB()
-    const todo = await Todo.findById(params.id)
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
+    const todo = await Todo.findOne({ _id: params.id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })
@@ -31,7 +36,11 @@ export async function PATCH(
     const body = await request.json()
 
     await connectDB()
-    const todo = await Todo.findById(params.id)
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
+    const todo = await Todo.findOne({ _id: params.id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })
@@ -59,7 +68,11 @@ export async function DELETE(
 ) {
   try {
     await connectDB()
-    const todo = await Todo.findByIdAndDelete(params.id)
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
+    const todo = await Todo.findOneAndDelete({ _id: params.id, userId })
 
     if (!todo) {
       return NextResponse.json({ error: 'Todo not found' }, { status: 404 })

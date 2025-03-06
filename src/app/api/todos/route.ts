@@ -38,20 +38,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    console.log({
-      text: validation.data!.text,
-      completed: validation.data!.completed,
-      userId
-    })
-
     await connectDB()
     const newTodo = new Todo({
       text: validation.data!.text,
       completed: validation.data!.completed,
       userId
     })
-
-    //console.log(newTodo)
 
     await newTodo.save()
     return NextResponse.json({ todo: newTodo }, { status: 201 })
