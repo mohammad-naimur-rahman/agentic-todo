@@ -40,8 +40,8 @@ export const verifyJwtToken = async (
 /**
  * Set token in cookies
  */
-export const setTokenCookie = (token: string): void => {
-  const cookieStore = cookies()
+export const setTokenCookie = async (token: string): Promise<void> => {
+  const cookieStore = await cookies()
   cookieStore.set({
     name: 'token',
     value: token,
@@ -56,8 +56,8 @@ export const setTokenCookie = (token: string): void => {
 /**
  * Remove token from cookies
  */
-export const removeTokenCookie = (): void => {
-  const cookieStore = cookies()
+export const removeTokenCookie = async (): Promise<void> => {
+  const cookieStore = await cookies()
   cookieStore.delete('token')
 }
 
@@ -65,7 +65,7 @@ export const removeTokenCookie = (): void => {
  * Get current user from token in cookies
  */
 export const getCurrentUser = async (): Promise<JwtPayload | null> => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('token')?.value
 
   if (!token) {

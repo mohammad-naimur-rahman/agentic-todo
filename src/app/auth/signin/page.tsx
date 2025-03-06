@@ -48,16 +48,11 @@ export default function SigninPage() {
         expires: 7,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax' // Changed from 'strict' to 'lax' for better compatibility
       })
 
-      console.log('Token set in cookie:', data.token)
-      console.log('Redirecting to:', callbackUrl)
-
-      // Add a small delay before redirecting to ensure cookie is set
-      setTimeout(() => {
-        router.push(callbackUrl)
-      }, 100)
+      // Force a hard navigation instead of client-side routing
+      window.location.href = callbackUrl
     } catch (err: any) {
       console.error('Signin error:', err)
       setError(err.message || 'An error occurred during sign in')

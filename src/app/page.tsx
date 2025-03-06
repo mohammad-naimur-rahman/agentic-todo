@@ -13,11 +13,9 @@ export default function Homepage() {
   useEffect(() => {
     // Check if user is authenticated
     const token = Cookies.get('token')
-    console.log('Homepage token check:', token ? 'Token exists' : 'No token')
 
     if (!token) {
-      console.log('No token found, redirecting to signin page')
-      router.push('/auth/signin')
+      window.location.href = '/auth/signin'
       return
     }
 
@@ -27,21 +25,19 @@ export default function Homepage() {
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
       const payload = JSON.parse(window.atob(base64))
       setUserEmail(payload.email)
-      console.log('User authenticated:', payload.email)
     } catch (error) {
       console.error('Error decoding token:', error)
       // If token can't be decoded, it might be invalid
       Cookies.remove('token')
-      router.push('/auth/signin')
+      window.location.href = '/auth/signin'
     } finally {
       setIsLoading(false)
     }
-  }, [router])
+  }, [])
 
   const handleSignOut = () => {
-    console.log('Signing out...')
     Cookies.remove('token')
-    router.push('/auth/signin')
+    window.location.href = '/auth/signin'
   }
 
   // Show loading state while checking authentication

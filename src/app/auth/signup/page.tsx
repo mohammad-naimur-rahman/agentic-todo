@@ -1,8 +1,9 @@
 'use client'
 
+import Cookies from 'js-cookie'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -10,6 +11,14 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const token = Cookies.get('token')
+    if (token) {
+      router.push('/')
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,9 +40,10 @@ export default function SignupPage() {
         throw new Error(data.error || 'Something went wrong')
       }
 
-      // Redirect to signin page on successful signup
-      router.push('/auth/signin')
+      // Redirect to signin page on successful signup using hard navigation
+      window.location.href = '/auth/signin'
     } catch (err: any) {
+      console.error('Signup error:', err)
       setError(err.message || 'An error occurred during signup')
     } finally {
       setLoading(false)
@@ -99,7 +109,7 @@ export default function SignupPage() {
             <button
               type='submit'
               disabled={loading}
-              className='group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-70'
+              className='group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-70'
             >
               {loading ? 'Signing up...' : 'Sign up'}
             </button>
