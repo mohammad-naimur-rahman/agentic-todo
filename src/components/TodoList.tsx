@@ -238,7 +238,7 @@ export function TodoList() {
           <div className='mt-4 text-center'>
             <button
               onClick={clearTodos}
-              className='flex items-center gap-2 text-red-500 hover:text-red-600 text-sm mx-auto disabled:opacity-50 disabled:cursor-not-allowed'
+              className='flex items-center gap-2 text-red-500 hover:text-red-600 text-sm mx-auto disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
               disabled={clearingTodos}
             >
               {clearingTodos ? (
@@ -266,7 +266,7 @@ export function TodoList() {
           />
           <button
             type='submit'
-            className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
+            className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
             aria-label='Add todo'
             disabled={addingTodo}
           >
@@ -290,7 +290,7 @@ export function TodoList() {
           />
           <button
             type='submit'
-            className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed'
+            className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
             aria-label='Send command'
             disabled={loading}
           >

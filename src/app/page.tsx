@@ -37,7 +37,7 @@ export default function Homepage() {
             </p>
             <button
               onClick={handleSignOut}
-              className='mt-2 text-indigo-600 hover:text-indigo-500 underline'
+              className='mt-2 text-indigo-600 hover:text-indigo-500 underline cursor-pointer'
             >
               Sign out
             </button>
