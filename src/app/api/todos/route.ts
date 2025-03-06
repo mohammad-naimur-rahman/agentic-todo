@@ -1,3 +1,4 @@
+import { needAuth } from '@/lib/auth'
 import connectDB from '@/lib/db'
 import { Todo, validateTodo } from '@/lib/models/todo'
 import { NextRequest, NextResponse } from 'next/server'
@@ -6,7 +7,13 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET() {
   try {
     await connectDB()
-    const todos = await Todo.find({}).sort({ createdAt: -1 })
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
+    const todos = await Todo.find({ userId: userId }).sort({
+      createdAt: -1
+    })
     return NextResponse.json({ todos }, { status: 200 })
   } catch (error) {
     console.error('Error fetching todos:', error)
@@ -17,9 +24,13 @@ export async function GET() {
   }
 }
 
-// POST a new todo
+// Create a new todo
 export async function POST(request: NextRequest) {
   try {
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
     const body = await request.json()
     const validation = validateTodo(body)
 
@@ -27,11 +38,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
+    console.log({
+      text: validation.data!.text,
+      completed: validation.data!.completed,
+      userId
+    })
+
     await connectDB()
     const newTodo = new Todo({
       text: validation.data!.text,
-      completed: validation.data!.completed
+      completed: validation.data!.completed,
+      userId
     })
+
+    //console.log(newTodo)
 
     await newTodo.save()
     return NextResponse.json({ todo: newTodo }, { status: 201 })
@@ -47,8 +67,12 @@ export async function POST(request: NextRequest) {
 // DELETE all todos
 export async function DELETE() {
   try {
+    const { success, userId, error } = await needAuth()
+    if (!success) {
+      return NextResponse.json({ error }, { status: 401 })
+    }
     await connectDB()
-    await Todo.deleteMany({})
+    await Todo.deleteMany({ userId: userId })
     return NextResponse.json({ message: 'All todos deleted' }, { status: 200 })
   } catch (error) {
     console.error('Error deleting todos:', error)

@@ -12,7 +12,6 @@ export default function Homepage() {
   useEffect(() => {
     const user = Cookies.get('user')
     if (user) {
-      console.log(user)
       setUserEmail(JSON.parse(user).email)
     }
   }, [])
