@@ -1,47 +1,22 @@
 'use client'
 import { Input } from '@/components/ui/input'
+import { useGetTodosQuery } from '@/redux/features/todosApi'
 import { IconLoader2, IconPlus, IconSend, IconTrash } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Todo } from './Todo'
 
-interface TodoItem {
-  _id: string
-  text: string
-  completed: boolean
-  createdAt: string
-}
-
 export function TodoList() {
-  const [todos, setTodos] = useState<TodoItem[]>([])
+  const { data, isLoading, isSuccess } = useGetTodosQuery()
   const [newTodo, setNewTodo] = useState('')
   const [command, setCommand] = useState('')
-  const [loading, setLoading] = useState(false)
   const [addingTodo, setAddingTodo] = useState(false)
   const [togglingTodo, setTogglingTodo] = useState<string | null>(null)
   const [deletingTodo, setDeletingTodo] = useState<string | null>(null)
   const [clearingTodos, setClearingTodos] = useState(false)
   const [commandResult, setCommandResult] = useState<string | null>(null)
 
-  // Fetch todos on component mount
-  useEffect(() => {
-    fetchTodos()
-  }, [])
-
-  // Fetch all todos from the API
-  const fetchTodos = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/todos')
-      const data = await response.json()
-      setTodos(data.todos || [])
-    } catch (error) {
-      console.error('Error fetching todos:', error)
-      toast.error('Failed to fetch todos')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const todos = data?.todos
 
   // Add a new todo
   const addTodo = async (e: React.FormEvent) => {
@@ -60,7 +35,6 @@ export function TodoList() {
 
       if (response.ok) {
         setNewTodo('')
-        fetchTodos()
         toast.success('Todo added successfully')
       } else {
         const data = await response.json()
@@ -78,7 +52,7 @@ export function TodoList() {
   const toggleTodo = async (id: string) => {
     try {
       setTogglingTodo(id)
-      const todo = todos.find(t => t._id === id)
+      const todo = todos?.find(t => t._id === id)
       if (!todo) return
 
       const response = await fetch(`/api/todos/${id}`, {
@@ -90,7 +64,6 @@ export function TodoList() {
       })
 
       if (response.ok) {
-        fetchTodos()
         toast.success(
           `Todo marked as ${!todo.completed ? 'completed' : 'incomplete'}`
         )
@@ -115,7 +88,6 @@ export function TodoList() {
       })
 
       if (response.ok) {
-        fetchTodos()
         toast.success('Todo deleted successfully')
       } else {
         const data = await response.json()
@@ -138,7 +110,6 @@ export function TodoList() {
       })
 
       if (response.ok) {
-        fetchTodos()
         toast.success('All todos cleared successfully')
       } else {
         const data = await response.json()
@@ -156,8 +127,6 @@ export function TodoList() {
   const processCommand = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!command.trim()) return
-
-    setLoading(true)
     setCommandResult(null)
 
     try {
@@ -175,7 +144,6 @@ export function TodoList() {
         // Extract the text from the result
         const resultText = data.result?.text || 'Command processed successfully'
         setCommandResult(resultText)
-        fetchTodos()
         setCommand('')
         toast.success(resultText)
       } else {
@@ -188,8 +156,6 @@ export function TodoList() {
       const errorMessage = 'Error processing command'
       setCommandResult(errorMessage)
       toast.error(errorMessage)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -208,18 +174,18 @@ export function TodoList() {
       {/* Todo List - Scrollable */}
       <div className='flex-grow overflow-y-auto my-4 pr-1'>
         <div className='space-y-1 relative'>
-          {loading && todos.length === 0 && (
+          {isLoading && todos?.length === 0 && (
             <div className='flex justify-center items-center py-8'>
               <IconLoader2 size={24} className='animate-spin text-gray-400' />
             </div>
           )}
 
-          {!loading && todos.length === 0 ? (
+          {isSuccess && todos?.length === 0 ? (
             <p className='text-center text-gray-500 dark:text-gray-400 py-4 italic'>
               No todos yet. Add one below!
             </p>
           ) : (
-            todos.map(todo => (
+            todos?.map(todo => (
               <Todo
                 key={todo._id}
                 id={todo._id}
@@ -235,7 +201,7 @@ export function TodoList() {
         </div>
 
         {/* Clear All Button */}
-        {todos.length > 0 && (
+        {todos?.length && todos?.length > 0 && (
           <div className='mt-4 text-center'>
             <button
               onClick={clearTodos}
@@ -287,15 +253,15 @@ export function TodoList() {
             onChange={e => setCommand(e.target.value)}
             placeholder="Enter a command (e.g., 'Add a todo: Buy groceries')"
             className='flex-1'
-            disabled={loading}
+            disabled={isLoading}
           />
           <button
             type='submit'
             className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
             aria-label='Send command'
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? (
+            {isLoading ? (
               <IconLoader2 size={20} className='animate-spin' />
             ) : (
               <IconSend size={20} />

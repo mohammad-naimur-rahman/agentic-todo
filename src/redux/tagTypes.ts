@@ -1,1 +1,1 @@
-export const tagTypes = []
+export const tagTypes = ['todos']
