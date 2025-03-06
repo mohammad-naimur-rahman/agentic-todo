@@ -1,3 +1,4 @@
+import ReduxProvider from '@/redux/redux-provider'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ReactNode } from 'react'
@@ -27,23 +28,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <main>{children}</main>
-        <Toaster
-          position='top-right'
-          toastOptions={{
-            duration: 3000,
-            className: 'text-sm',
-            style: {
-              background: 'var(--background)',
-              color: 'var(--foreground)',
-              border: '1px solid var(--border)'
-            }
-          }}
-        />
-      </body>
+      <ReduxProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <main>{children}</main>
+          <Toaster
+            position='top-right'
+            toastOptions={{
+              duration: 3000,
+              className: 'text-sm',
+              style: {
+                background: 'var(--background)',
+                color: 'var(--foreground)',
+                border: '1px solid var(--border)'
+              }
+            }}
+          />
+        </body>
+      </ReduxProvider>
     </html>
   )
 }
