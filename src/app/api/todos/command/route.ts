@@ -2,12 +2,22 @@ import connectDB from '@/lib/db'
 import { Todo } from '@/lib/models/todo'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Define the result type for our tools
+interface ToolResult {
+  success: boolean
+  message?: string
+  error?: string
+  todo?: any
+  count?: number
+  todos?: any[]
+}
+
 // Define the tools for handling todo commands
 const todoTools = [
   {
     name: 'addTodo',
     description: 'Add a new todo item to the list',
-    execute: async (text: string) => {
+    execute: async (text: string): Promise<ToolResult> => {
       await connectDB()
       const newTodo = new Todo({ text, completed: false })
       await newTodo.save()
@@ -21,7 +31,7 @@ const todoTools = [
   {
     name: 'markTodoAsDone',
     description: 'Mark a specific todo item as completed',
-    execute: async (todoText: string) => {
+    execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       // Find the todo with text that most closely matches the provided text
       const todos = await Todo.find({})
@@ -60,7 +70,7 @@ const todoTools = [
   {
     name: 'markTodoAsUndone',
     description: 'Mark a specific todo item as not completed',
-    execute: async (todoText: string) => {
+    execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       const todos = await Todo.find({})
 
@@ -97,7 +107,7 @@ const todoTools = [
   {
     name: 'deleteTodo',
     description: 'Delete a specific todo item',
-    execute: async (todoText: string) => {
+    execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       const todos = await Todo.find({})
 
@@ -129,7 +139,7 @@ const todoTools = [
   {
     name: 'clearAllTodos',
     description: 'Delete all todo items',
-    execute: async () => {
+    execute: async (): Promise<ToolResult> => {
       await connectDB()
       await Todo.deleteMany({})
       return { success: true, message: 'All todos cleared' }
@@ -138,7 +148,7 @@ const todoTools = [
   {
     name: 'markFirstTodoAsDone',
     description: 'Mark the first todo in the list as completed',
-    execute: async () => {
+    execute: async (): Promise<ToolResult> => {
       await connectDB()
       const firstTodo = await Todo.findOne().sort({ createdAt: 1 })
 
@@ -158,7 +168,7 @@ const todoTools = [
   {
     name: 'markLastTodoAsDone',
     description: 'Mark the last todo in the list as completed',
-    execute: async () => {
+    execute: async (): Promise<ToolResult> => {
       await connectDB()
       const lastTodo = await Todo.findOne().sort({ createdAt: -1 })
 
@@ -178,7 +188,10 @@ const todoTools = [
   {
     name: 'markMultipleTodosAsDone',
     description: 'Mark multiple todos as completed',
-    execute: async (count: number, fromEnd: boolean = false) => {
+    execute: async (
+      count: number,
+      fromEnd: boolean = false
+    ): Promise<ToolResult> => {
       await connectDB()
       const todos = await Todo.find({})
         .sort({ createdAt: fromEnd ? -1 : 1 })
@@ -248,7 +261,7 @@ export async function POST(request: NextRequest) {
 
     // Parse the command
     const commandLower = command.toLowerCase()
-    let result
+    let result: ToolResult
 
     // Add a todo
     if (commandLower.startsWith('add') || commandLower.includes('add a todo')) {

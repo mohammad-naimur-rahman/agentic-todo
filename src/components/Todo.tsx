@@ -1,4 +1,4 @@
-import { IconCheck, IconTrash } from '@tabler/icons-react'
+import { IconCheck, IconLoader2, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 
 interface TodoProps {
@@ -7,9 +7,19 @@ interface TodoProps {
   completed: boolean
   onToggle: (id: string) => void
   onDelete: (id: string) => void
+  isToggling?: boolean
+  isDeleting?: boolean
 }
 
-export function Todo({ id, text, completed, onToggle, onDelete }: TodoProps) {
+export function Todo({
+  id,
+  text,
+  completed,
+  onToggle,
+  onDelete,
+  isToggling = false,
+  isDeleting = false
+}: TodoProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -29,10 +39,15 @@ export function Todo({ id, text, completed, onToggle, onDelete }: TodoProps) {
             completed
               ? 'bg-green-500 border-green-500 text-white'
               : 'border-gray-300 dark:border-gray-600'
-          }`}
+          } ${isToggling ? 'opacity-50 cursor-not-allowed' : ''}`}
           aria-label={completed ? 'Mark as incomplete' : 'Mark as complete'}
+          disabled={isToggling}
         >
-          {completed && <IconCheck size={16} />}
+          {isToggling ? (
+            <IconLoader2 size={14} className='animate-spin' />
+          ) : (
+            completed && <IconCheck size={16} />
+          )}
         </button>
         <span
           className={`text-sm ${
@@ -49,10 +64,15 @@ export function Todo({ id, text, completed, onToggle, onDelete }: TodoProps) {
         onClick={() => onDelete(id)}
         className={`text-gray-400 hover:text-red-500 transition-colors ${
           isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        } ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
         aria-label='Delete todo'
+        disabled={isDeleting}
       >
-        <IconTrash size={18} />
+        {isDeleting ? (
+          <IconLoader2 size={16} className='animate-spin' />
+        ) : (
+          <IconTrash size={18} />
+        )}
       </button>
     </div>
   )
