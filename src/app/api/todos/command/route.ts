@@ -1,6 +1,10 @@
+import { needAuth } from '@/lib/auth'
 import connectDB from '@/lib/db'
 import { Todo } from '@/lib/models/todo'
+import { openai } from '@ai-sdk/openai'
+import { generateText, tool } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
 // Define the result type for our tools
 interface ToolResult {
@@ -12,14 +16,40 @@ interface ToolResult {
   todos?: any[]
 }
 
+// Define the tool definition interface
+interface TodoToolDefinition {
+  name: string
+  description: string
+  parameters: {
+    type: string
+    properties: Record<string, any>
+    required: string[]
+  }
+  execute: (...args: any[]) => Promise<ToolResult>
+}
+
 // Define the tools for handling todo commands
-const todoTools = [
+const todoTools: TodoToolDefinition[] = [
   {
     name: 'addTodo',
     description: 'Add a new todo item to the list',
+    parameters: {
+      type: 'object',
+      properties: {
+        text: {
+          type: 'string',
+          description: 'The text of the todo item to add'
+        }
+      },
+      required: ['text']
+    },
     execute: async (text: string): Promise<ToolResult> => {
       await connectDB()
-      const newTodo = new Todo({ text, completed: false })
+      const { userId, success } = await needAuth()
+      if (!success) {
+        return { success: false, error: 'Unauthorized' }
+      }
+      const newTodo = new Todo({ text, completed: false, userId })
       await newTodo.save()
       return {
         success: true,
@@ -31,6 +61,16 @@ const todoTools = [
   {
     name: 'markTodoAsDone',
     description: 'Mark a specific todo item as completed',
+    parameters: {
+      type: 'object',
+      properties: {
+        todoText: {
+          type: 'string',
+          description: 'The text of the todo item to mark as done'
+        }
+      },
+      required: ['todoText']
+    },
     execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       // Find the todo with text that most closely matches the provided text
@@ -70,6 +110,16 @@ const todoTools = [
   {
     name: 'markTodoAsUndone',
     description: 'Mark a specific todo item as not completed',
+    parameters: {
+      type: 'object',
+      properties: {
+        todoText: {
+          type: 'string',
+          description: 'The text of the todo item to mark as not done'
+        }
+      },
+      required: ['todoText']
+    },
     execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       const todos = await Todo.find({})
@@ -107,6 +157,16 @@ const todoTools = [
   {
     name: 'deleteTodo',
     description: 'Delete a specific todo item',
+    parameters: {
+      type: 'object',
+      properties: {
+        todoText: {
+          type: 'string',
+          description: 'The text of the todo item to delete'
+        }
+      },
+      required: ['todoText']
+    },
     execute: async (todoText: string): Promise<ToolResult> => {
       await connectDB()
       const todos = await Todo.find({})
@@ -139,6 +199,11 @@ const todoTools = [
   {
     name: 'clearAllTodos',
     description: 'Delete all todo items',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: []
+    },
     execute: async (): Promise<ToolResult> => {
       await connectDB()
       await Todo.deleteMany({})
@@ -148,6 +213,11 @@ const todoTools = [
   {
     name: 'markFirstTodoAsDone',
     description: 'Mark the first todo in the list as completed',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: []
+    },
     execute: async (): Promise<ToolResult> => {
       await connectDB()
       const firstTodo = await Todo.findOne().sort({ createdAt: 1 })
@@ -168,6 +238,11 @@ const todoTools = [
   {
     name: 'markLastTodoAsDone',
     description: 'Mark the last todo in the list as completed',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: []
+    },
     execute: async (): Promise<ToolResult> => {
       await connectDB()
       const lastTodo = await Todo.findOne().sort({ createdAt: -1 })
@@ -188,6 +263,21 @@ const todoTools = [
   {
     name: 'markMultipleTodosAsDone',
     description: 'Mark multiple todos as completed',
+    parameters: {
+      type: 'object',
+      properties: {
+        count: {
+          type: 'number',
+          description: 'Number of todos to mark as done'
+        },
+        fromEnd: {
+          type: 'boolean',
+          description:
+            'Whether to start from the end of the list (most recent todos)'
+        }
+      },
+      required: ['count']
+    },
     execute: async (
       count: number,
       fromEnd: boolean = false
@@ -214,6 +304,63 @@ const todoTools = [
     }
   }
 ]
+
+// Convert todoTools to the format needed for generateText by mapping through the array
+const tools = Object.fromEntries(
+  todoTools.map(toolDef => {
+    const paramSchema: Record<string, any> = {}
+
+    // Convert JSON Schema properties to Zod schema
+    Object.entries(toolDef.parameters.properties || {}).forEach(
+      ([key, value]) => {
+        const propDef = value as any
+        if (propDef.type === 'string') {
+          paramSchema[key] = z.string().describe(propDef.description || '')
+        } else if (propDef.type === 'number') {
+          paramSchema[key] = z.number().describe(propDef.description || '')
+        } else if (propDef.type === 'boolean') {
+          paramSchema[key] = z.boolean().describe(propDef.description || '')
+        }
+      }
+    )
+
+    return [
+      toolDef.name,
+      tool({
+        description: toolDef.description,
+        parameters: z.object(paramSchema),
+        execute: async (params: Record<string, any>) => {
+          // Handle different parameter patterns based on the tool
+          switch (toolDef.name) {
+            case 'addTodo':
+              return await toolDef.execute(params.text)
+            case 'markTodoAsDone':
+            case 'markTodoAsUndone':
+            case 'deleteTodo':
+              return await toolDef.execute(params.todoText)
+            case 'clearAllTodos':
+            case 'markFirstTodoAsDone':
+            case 'markLastTodoAsDone':
+              return await toolDef.execute()
+            case 'markMultipleTodosAsDone':
+              return await toolDef.execute(params.count, params.fromEnd)
+            default:
+              // Default case - pass the first required parameter
+              if (
+                toolDef.parameters.required &&
+                toolDef.parameters.required.length > 0
+              ) {
+                return await toolDef.execute(
+                  params[toolDef.parameters.required[0]]
+                )
+              }
+              return await toolDef.execute()
+          }
+        }
+      })
+    ]
+  })
+)
 
 // Helper function to calculate similarity between two strings (simple Levenshtein distance)
 function calculateSimilarity(str1: string, str2: string): number {
@@ -247,7 +394,7 @@ function calculateSimilarity(str1: string, str2: string): number {
   return 1 - track[str2.length][str1.length] / maxLength
 }
 
-// Process natural language commands
+// Process natural language commands using LLM
 export async function POST(request: NextRequest) {
   try {
     const { command } = await request.json()
@@ -259,89 +406,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse the command
-    const commandLower = command.toLowerCase()
-    let result: ToolResult
+    // Use the AI to process the command with our tools
+    const { text, steps } = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: command,
+      tools,
+      maxSteps: 2
+    })
 
-    // Add a todo
-    if (commandLower.startsWith('add') || commandLower.includes('add a todo')) {
-      const todoText = command.replace(/add a todo|add todo|add/i, '').trim()
-      if (todoText) {
-        result = await todoTools[0].execute(todoText)
-      } else {
-        result = { success: false, error: 'No todo text provided' }
-      }
-    }
-    // Mark as done
-    else if (commandLower.includes('mark') && commandLower.includes('done')) {
-      if (commandLower.includes('first')) {
-        result = await todoTools[6].execute()
-      } else if (commandLower.includes('last')) {
-        result = await todoTools[7].execute()
-      } else if (commandLower.match(/mark\s+(\d+)/i)) {
-        const match = commandLower.match(/mark\s+(\d+)/i)
-        const count = parseInt(match![1], 10)
-        const fromEnd = commandLower.includes('last')
-        result = await todoTools[8].execute(count, fromEnd)
-      } else {
-        // Extract the todo text
-        const todoText = command
-          .replace(/mark as done|mark done|mark|as done|done/gi, '')
-          .trim()
-        if (todoText) {
-          result = await todoTools[1].execute(todoText)
-        } else {
-          result = {
-            success: false,
-            error: 'No todo specified to mark as done'
+    // Extract the result from the last step if available
+    let result: any = { success: true, message: text }
+
+    // Process the steps to find tool results
+    let toolResult: ToolResult | null = null
+    for (const step of steps) {
+      // Check if this step has tool calls
+      if (step.toolCalls && step.toolCalls.length > 0) {
+        // Get the tool name from the last tool call
+        const toolName = step.toolCalls[0].toolName
+
+        // Find the corresponding tool in our todoTools array
+        const matchingTool = todoTools.find(tool => tool.name === toolName)
+        if (matchingTool) {
+          // The next step should contain the result of this tool call
+          const nextIndex = steps.indexOf(step) + 1
+          if (nextIndex < steps.length) {
+            // Use the tool result as our final result
+            const nextStep = steps[nextIndex]
+            toolResult = {
+              success: true,
+              message:
+                typeof nextStep === 'object' && 'text' in nextStep
+                  ? (nextStep.text as string)
+                  : text
+            }
           }
         }
       }
     }
-    // Mark as undone
-    else if (
-      commandLower.includes('mark') &&
-      (commandLower.includes('undone') || commandLower.includes('not done'))
-    ) {
-      const todoText = command
-        .replace(
-          /mark as undone|mark undone|mark as not done|mark not done|undone|not done/gi,
-          ''
-        )
-        .trim()
-      if (todoText) {
-        result = await todoTools[2].execute(todoText)
-      } else {
-        result = {
-          success: false,
-          error: 'No todo specified to mark as undone'
-        }
-      }
-    }
-    // Delete a todo
-    else if (commandLower.includes('delete') && !commandLower.includes('all')) {
-      const todoText = command.replace(/delete todo|delete/i, '').trim()
-      if (todoText) {
-        result = await todoTools[3].execute(todoText)
-      } else {
-        result = { success: false, error: 'No todo specified to delete' }
-      }
-    }
-    // Clear all todos
-    else if (
-      commandLower.includes('clear') ||
-      commandLower.includes('reset') ||
-      (commandLower.includes('delete') && commandLower.includes('all'))
-    ) {
-      result = await todoTools[4].execute()
-    } else {
-      result = { success: false, error: 'Command not recognized' }
+
+    // Use the tool result if found, otherwise use the default result
+    if (toolResult) {
+      result = toolResult
     }
 
     return NextResponse.json(
       {
-        result: { text: result.message || result.error },
-        success: result.success
+        result: { text: result.message || result.error || text },
+        success: result.success !== false,
+        steps: steps
       },
       { status: 200 }
     )
