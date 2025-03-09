@@ -2,13 +2,12 @@
 import { Input } from '@/components/ui/input'
 import { useGetTodosQuery } from '@/redux/features/todosApi'
 import { IconLoader2, IconPlus, IconSend, IconTrash } from '@tabler/icons-react'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Todo } from './Todo'
+
 export function TodoList() {
-  const router = useRouter()
-  const { data, isLoading, isSuccess } = useGetTodosQuery()
+  const { data, isLoading, isSuccess, refetch } = useGetTodosQuery()
   const [newTodo, setNewTodo] = useState('')
   const [command, setCommand] = useState('')
   const [addingTodo, setAddingTodo] = useState(false)
@@ -142,7 +141,7 @@ export function TodoList() {
       const data = await response.json()
 
       if (response.ok) {
-        router.refresh()
+        refetch()
         // Extract the text from the result
         const resultText = data.result?.text || 'Command processed successfully'
         setCommandResult(resultText)
