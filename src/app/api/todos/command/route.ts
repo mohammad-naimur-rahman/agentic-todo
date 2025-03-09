@@ -1,8 +1,12 @@
 import { google } from '@ai-sdk/google'
+import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 import { todoTools } from './tools'
 // Define the tools for handling todo commands
+
+const geminiModelMini = google('gemini-1.5-flash-lite')
+const openAiModelMini = openai('gpt-4o-mini')
 
 // Process natural language commands using LLM
 export async function POST(request: NextRequest) {
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Use the AI to process the command with our tools
     const { text, steps } = await generateText({
-      model: google('gemini-2.0-flash-lite'),
+      model: geminiModelMini,
       prompt: command,
       tools: todoTools,
       maxSteps: 2

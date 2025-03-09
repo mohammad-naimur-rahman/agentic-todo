@@ -35,23 +35,71 @@ export const todoTools = {
       'Mark a todo as completed or incomplete, no need for exact match, because fuzzy search will be used',
     parameters: z.object({
       todoText: z.string().describe('The todo text'),
-      completed: z.boolean().describe('Whether the todo is completed')
+      toMarkAsCompleted: z
+        .boolean()
+        .describe('Whether the todo needs to be marked as completed')
     }),
     execute: async ({
       todoText,
-      completed
+      toMarkAsCompleted
     }: {
       todoText: string
-      completed: boolean
+      toMarkAsCompleted: boolean
     }): Promise<ToolResult> => {
       const matchedTodo = await fuzzyMatchSingleTodo(todoText)
       if (!matchedTodo) return { success: false, error: 'Todo not found' }
 
-      await Todo.updateOne({ _id: matchedTodo._id }, { completed })
+      await Todo.updateOne(
+        { _id: matchedTodo._id },
+        { completed: toMarkAsCompleted }
+      )
       return {
         success: true,
         message: `Marked "${matchedTodo.text}" as ${
-          completed ? 'done' : 'not done'
+          toMarkAsCompleted ? 'done' : 'not done'
+        }`
+      }
+    }
+  }),
+  markFirstOrLastTodoAsCompletedOrIncomplete: tool({
+    description:
+      'Mark the first or last todo as completed or incomplete, no need for exact match, because fuzzy search will be used',
+    parameters: z.object({
+      toMarkAsCompleted: z.boolean().describe('Whether the todo is completed'),
+      fromEnd: z.boolean().describe('Whether to mark the last todo')
+    }),
+    execute: async ({
+      toMarkAsCompleted,
+      fromEnd
+    }: {
+      toMarkAsCompleted: boolean
+      fromEnd: boolean
+    }): Promise<ToolResult> => {
+      console.log({ toMarkAsCompleted, fromEnd })
+      if (!global.mongoose?.conn) {
+        await connectDB()
+      }
+      const { userId, success } = await needAuth()
+      if (!success) return { success: false, error: 'Unauthorized' }
+
+      const todos = await Todo.find({ userId })
+        .sort({ createdAt: fromEnd ? 'asc' : 'desc' })
+        .limit(1)
+        .select('_id text')
+
+      if (!todos.length) return { success: false, error: 'No todos found' }
+
+      console.log(todos)
+
+      const matchedTodo = todos[0]
+      await Todo.updateOne(
+        { _id: matchedTodo._id },
+        { completed: toMarkAsCompleted }
+      )
+      return {
+        success: true,
+        message: `Marked "${matchedTodo.text}" as ${
+          toMarkAsCompleted ? 'done' : 'not done'
         }`
       }
     }
@@ -74,6 +122,29 @@ export const todoTools = {
     }
   }),
 
+  deleteFirstOrLastTodo: tool({
+    description: 'Delete the first or last todo',
+    parameters: z.object({
+      fromEnd: z.boolean().describe('Whether to delete the last todo')
+    }),
+    execute: async ({ fromEnd }: { fromEnd: boolean }): Promise<ToolResult> => {
+      if (!global.mongoose?.conn) {
+        await connectDB()
+      }
+      const { userId, success } = await needAuth()
+      if (!success) return { success: false, error: 'Unauthorized' }
+
+      const todos = await Todo.find({ userId })
+        .sort({ createdAt: fromEnd ? 'asc' : 'desc' })
+        .limit(1)
+        .select('_id')
+
+      if (!todos.length) return { success: false, error: 'No todos found' }
+
+      await Todo.findByIdAndDelete(todos[0]._id)
+      return { success: true, message: `Deleted "${todos[0].text}"` }
+    }
+  }),
   clearAllTodos: tool({
     description: 'Delete all todos',
     parameters: z.object({}),

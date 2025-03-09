@@ -4,6 +4,7 @@ import { useGetTodosQuery } from '@/redux/features/todosApi'
 import { IconLoader2, IconPlus, IconSend, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { AudioRecorder } from './AudioRecorder'
 import { Todo } from './Todo'
 
 export function TodoList() {
@@ -14,7 +15,6 @@ export function TodoList() {
   const [togglingTodo, setTogglingTodo] = useState<string | null>(null)
   const [deletingTodo, setDeletingTodo] = useState<string | null>(null)
   const [clearingTodos, setClearingTodos] = useState(false)
-  const [commandResult, setCommandResult] = useState<string | null>(null)
 
   const todos = data?.todos
 
@@ -127,7 +127,6 @@ export function TodoList() {
   const processCommand = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!command.trim()) return
-    setCommandResult(null)
 
     try {
       const response = await fetch('/api/todos/command', {
@@ -144,20 +143,17 @@ export function TodoList() {
         refetch()
         // Extract the text from the result
         const resultText = data.result?.text || 'Command processed successfully'
-        setCommandResult(resultText)
         setCommand('')
         toast.success(resultText)
       } else {
         refetch()
         const errorMessage = data.error || 'Failed to process command'
-        setCommandResult(errorMessage)
         toast.error(errorMessage)
       }
     } catch (error) {
       refetch()
       console.error('Error processing command:', error)
       const errorMessage = 'Error processing command'
-      setCommandResult(errorMessage)
       toast.error(errorMessage)
     }
   }
@@ -248,6 +244,7 @@ export function TodoList() {
             className='flex-1'
             disabled={isLoading}
           />
+          <AudioRecorder onTranscriptChange={setCommand} />
           <button
             type='submit'
             className='bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
