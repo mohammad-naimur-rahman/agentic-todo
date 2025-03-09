@@ -35,6 +35,7 @@ export function TodoList() {
 
       if (response.ok) {
         setNewTodo('')
+        refetch()
         toast.success('Todo added successfully')
       } else {
         const data = await response.json()
@@ -64,6 +65,7 @@ export function TodoList() {
       })
 
       if (response.ok) {
+        refetch()
         toast.success(
           `Todo marked as ${!todo.completed ? 'completed' : 'incomplete'}`
         )
@@ -88,6 +90,7 @@ export function TodoList() {
       })
 
       if (response.ok) {
+        refetch()
         toast.success('Todo deleted successfully')
       } else {
         const data = await response.json()
@@ -110,6 +113,7 @@ export function TodoList() {
       })
 
       if (response.ok) {
+        refetch()
         toast.success('All todos cleared successfully')
       } else {
         const data = await response.json()
@@ -120,6 +124,7 @@ export function TodoList() {
       toast.error('Failed to clear todos')
     } finally {
       setClearingTodos(false)
+      refetch()
     }
   }
 

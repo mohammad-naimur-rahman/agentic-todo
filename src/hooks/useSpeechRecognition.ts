@@ -156,7 +156,12 @@ export function useSpeechRecognition({
       }
 
       recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.log(event.error)
         if (event.error === 'not-allowed') {
+          toast.error('Microphone access is blocked.')
+        } else if (event.error === 'network') {
+          toast.error('Network error occurred during speech recognition.')
+        } else if (event.error === 'not-allowed') {
           toast.error('Microphone access is blocked.')
         } else {
           toast.error('Error occurred during speech recognition.')

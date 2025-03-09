@@ -1,8 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
-import { cn } from '@/lib/utils'
 import { IconLoader2, IconMicrophone, IconSquare } from '@tabler/icons-react'
 
 interface AudioRecorderProps {
@@ -32,7 +30,7 @@ interface AudioRecorderProps {
 export function AudioRecorder({
   onTranscriptChange,
   MicIcon = <IconMicrophone className='size-5' />,
-  StopIcon = <IconSquare className='size-4' />,
+  StopIcon = <IconSquare className='size-5' />,
   className,
   onTranscriptSubmit
 }: AudioRecorderProps) {
@@ -58,21 +56,18 @@ export function AudioRecorder({
 
   if (isPreparing)
     return (
-      <Button
-        size='icon'
-        variant='outline'
-        className={cn(
-          'animate-pulse rounded-full border-destructive text-destructive hover:text-destructive',
-          className
-        )}
+      <button
+        type='button'
+        className='bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
       >
-        <IconLoader2 />
-      </Button>
+        <IconLoader2 className='size-5 animate-spin' />
+      </button>
     )
 
   if (isListening) {
     return (
       <button
+        type='button'
         onClick={handleMicClick}
         className='bg-red-500 hover:bg-red-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
       >
@@ -83,6 +78,7 @@ export function AudioRecorder({
 
   return (
     <button
+      type='button'
       onClick={handleMicClick}
       className='bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
     >
