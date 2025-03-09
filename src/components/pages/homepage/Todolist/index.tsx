@@ -2,11 +2,12 @@
 import { Input } from '@/components/ui/input'
 import { useGetTodosQuery } from '@/redux/features/todosApi'
 import { IconLoader2, IconPlus, IconSend, IconTrash } from '@tabler/icons-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Todo } from './Todo'
-
 export function TodoList() {
+  const router = useRouter()
   const { data, isLoading, isSuccess } = useGetTodosQuery()
   const [newTodo, setNewTodo] = useState('')
   const [command, setCommand] = useState('')
@@ -141,6 +142,7 @@ export function TodoList() {
       const data = await response.json()
 
       if (response.ok) {
+        router.refresh()
         // Extract the text from the result
         const resultText = data.result?.text || 'Command processed successfully'
         setCommandResult(resultText)
@@ -201,7 +203,7 @@ export function TodoList() {
         </div>
 
         {/* Clear All Button */}
-        {todos?.length && todos?.length > 0 && (
+        {todos?.length && todos?.length > 0 ? (
           <div className='mt-4 text-center'>
             <button
               onClick={clearTodos}
@@ -216,7 +218,7 @@ export function TodoList() {
               Clear All Todos
             </button>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Input Section - Fixed at bottom */}
