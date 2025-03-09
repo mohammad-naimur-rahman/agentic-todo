@@ -22,7 +22,7 @@ export interface ITodo extends Document {
 // Mongoose schema
 const todoSchema = new Schema<ITodo>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  text: { type: String, required: true },
+  text: { type: String, required: true, index: true },
   completed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 })

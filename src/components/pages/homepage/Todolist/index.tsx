@@ -148,11 +148,13 @@ export function TodoList() {
         setCommand('')
         toast.success(resultText)
       } else {
+        refetch()
         const errorMessage = data.error || 'Failed to process command'
         setCommandResult(errorMessage)
         toast.error(errorMessage)
       }
     } catch (error) {
+      refetch()
       console.error('Error processing command:', error)
       const errorMessage = 'Error processing command'
       setCommandResult(errorMessage)

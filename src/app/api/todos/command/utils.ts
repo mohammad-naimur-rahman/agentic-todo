@@ -1,3 +1,8 @@
+import { needAuth } from '@/lib/auth'
+import connectDB from '@/lib/db'
+import { Todo } from '@/lib/models/todo'
+import Fuse from 'fuse.js'
+
 export // Helper function to calculate similarity between two strings (simple Levenshtein distance)
 function calculateSimilarity(str1: string, str2: string): number {
   const track = Array(str2.length + 1)
@@ -28,4 +33,25 @@ function calculateSimilarity(str1: string, str2: string): number {
 
   // Convert distance to similarity score (1 is perfect match, 0 is completely different)
   return 1 - track[str2.length][str1.length] / maxLength
+}
+
+export async function fuzzyMatchSingleTodo(todoText: string) {
+  await connectDB()
+  const { userId, success } = await needAuth()
+  if (!success) {
+    return { success: false, error: 'Unauthorized' }
+  }
+  // Find the todo with text that most closely matches the provided text
+  const todos = await Todo.find({ userId })
+  const fuse = new Fuse(todos, {
+    includeScore: true,
+    keys: ['text']
+  })
+  const results = fuse.search(todoText)
+
+  if (results.length === 0) {
+    return null
+  }
+
+  return results[0].item
 }
