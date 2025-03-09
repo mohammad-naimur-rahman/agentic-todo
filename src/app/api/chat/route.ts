@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai'
+import { google } from '@ai-sdk/google'
 import { streamText, tool } from 'ai'
 import { Message } from 'ai/react'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const limitedMessages = limitMessagesHistory(messages, MAX_MESSAGES_HISTORY)
 
   const result = streamText({
-    model: openai('gpt-4o-mini'),
+    model: google('gemini-2.0-flash-lite'),
     messages: limitedMessages,
     tools: {
       weather: tool({
