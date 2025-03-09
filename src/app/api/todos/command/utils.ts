@@ -36,11 +36,16 @@ function calculateSimilarity(str1: string, str2: string): number {
 }
 
 export async function fuzzyMatchSingleTodo(todoText: string) {
-  await connectDB()
+  // Check if mongoose is already connected before connecting
+  if (!global.mongoose?.conn) {
+    await connectDB()
+  }
+
   const { userId, success } = await needAuth()
   if (!success) {
-    return { success: false, error: 'Unauthorized' }
+    return null
   }
+
   // Find the todo with text that most closely matches the provided text
   const todos = await Todo.find({ userId })
   const fuse = new Fuse(todos, {

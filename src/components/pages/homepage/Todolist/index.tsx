@@ -164,16 +164,6 @@ export function TodoList() {
 
   return (
     <div className='w-full max-w-lg mx-auto flex flex-col h-[72vh]'>
-      {/* Header Section - Fixed at top */}
-      <div className='flex-none'>
-        {/* Command Result */}
-        {commandResult && (
-          <div className='mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-md text-sm'>
-            {commandResult}
-          </div>
-        )}
-      </div>
-
       {/* Todo List - Scrollable */}
       <div className='flex-grow overflow-y-auto my-4 pr-1'>
         <div className='space-y-1 relative'>

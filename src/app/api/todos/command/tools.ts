@@ -1,6 +1,7 @@
 import { needAuth } from '@/lib/auth'
 import connectDB from '@/lib/db'
 import { Todo } from '@/lib/models/todo'
+import { tool } from 'ai'
 import { z } from 'zod'
 import { fuzzyMatchSingleTodo } from './utils'
 
@@ -14,20 +15,22 @@ interface ToolResult {
 }
 
 export const todoTools = {
-  addTodo: {
+  addTodo: tool({
     description: 'Add a new todo item',
     parameters: z.object({ text: z.string().describe('The todo text') }),
     execute: async ({ text }: { text: string }): Promise<ToolResult> => {
-      await connectDB()
+      if (!global.mongoose?.conn) {
+        await connectDB()
+      }
       const { userId, success } = await needAuth()
       if (!success) return { success: false, error: 'Unauthorized' }
 
-      const newTodo = await Todo.create({ text, completed: false, userId })
-      return { success: true, todo: newTodo, message: `Added: "${text}"` }
+      await Todo.create({ text, completed: false, userId })
+      return { success: true, message: `Added: "${text}"` }
     }
-  },
+  }),
 
-  markTodoAsCompletedOrIncomplete: {
+  markTodoAsCompletedOrIncomplete: tool({
     description:
       'Mark a todo as completed or incomplete, no need for exact match, because fuzzy search will be used',
     parameters: z.object({
@@ -52,9 +55,9 @@ export const todoTools = {
         }`
       }
     }
-  },
+  }),
 
-  deleteTodo: {
+  deleteTodo: tool({
     description:
       'Delete a todo, no need for exact match, because fuzzy search will be used',
     parameters: z.object({ todoText: z.string().describe('The todo text') }),
@@ -66,25 +69,27 @@ export const todoTools = {
       const matchedTodo = await fuzzyMatchSingleTodo(todoText)
       if (!matchedTodo) return { success: false, error: 'Todo not found' }
 
-      await Todo.deleteOne({ _id: matchedTodo._id })
+      await Todo.findByIdAndDelete(matchedTodo._id)
       return { success: true, message: `Deleted "${matchedTodo.text}"` }
     }
-  },
+  }),
 
-  clearAllTodos: {
+  clearAllTodos: tool({
     description: 'Delete all todos',
     parameters: z.object({}),
     execute: async (): Promise<ToolResult> => {
-      await connectDB()
+      if (!global.mongoose?.conn) {
+        await connectDB()
+      }
       const { userId, success } = await needAuth()
       if (!success) return { success: false, error: 'Unauthorized' }
 
       await Todo.deleteMany({ userId })
       return { success: true, message: 'All todos cleared' }
     }
-  },
+  }),
 
-  markMultipleTodosAsDone: {
+  markMultipleTodosAsDone: tool({
     description: 'Mark multiple todos as done',
     parameters: z.object({
       count: z.number(),
@@ -118,5 +123,5 @@ export const todoTools = {
         message: `Marked ${todos.length} todos as done`
       }
     }
-  }
+  })
 }
