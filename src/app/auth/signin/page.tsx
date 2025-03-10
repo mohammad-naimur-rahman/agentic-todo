@@ -1,4 +1,5 @@
 import { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import SignIn from './SignIn'
 
 export const metadata: Metadata = {
@@ -11,5 +12,9 @@ export const viewport: Viewport = {
 }
 
 export default function SignInPage() {
-  return <SignIn />
+  return (
+    <Suspense>
+      <SignIn />
+    </Suspense>
+  )
 }
