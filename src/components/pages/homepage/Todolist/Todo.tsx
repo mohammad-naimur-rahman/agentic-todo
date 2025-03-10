@@ -6,7 +6,9 @@ interface TodoProps {
   id: string
   text: string
   completed: boolean
+  // @ts-ignore
   onToggle: (id: string) => void
+  // @ts-ignore
   onDelete: (id: string) => void
   isToggling?: boolean
   isDeleting?: boolean

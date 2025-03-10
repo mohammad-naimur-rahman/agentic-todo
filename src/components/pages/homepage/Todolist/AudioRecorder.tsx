@@ -2,11 +2,12 @@
 
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 import { IconLoader2, IconMicrophone, IconSquare } from '@tabler/icons-react'
-
+import { ReactNode } from 'react'
 interface AudioRecorderProps {
+  // @ts-ignore
   onTranscriptChange: (transcript: string) => void
-  MicIcon?: React.ReactNode
-  StopIcon?: React.ReactNode
+  MicIcon?: ReactNode
+  StopIcon?: ReactNode
   onTranscriptSubmit?: () => void
   className?: string
 }
@@ -31,7 +32,6 @@ export function AudioRecorder({
   onTranscriptChange,
   MicIcon = <IconMicrophone className='size-5' />,
   StopIcon = <IconSquare className='size-5' />,
-  className,
   onTranscriptSubmit
 }: AudioRecorderProps) {
   const {

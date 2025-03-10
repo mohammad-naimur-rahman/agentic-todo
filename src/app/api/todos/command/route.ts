@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { todoTools } from './tools'
 // Define the tools for handling todo commands
 
-const geminiModelMini = google('gemini-2.0-flash-lite')
-const openAiModelMini = openai('gpt-4o-mini')
+export const geminiModelMini = google('gemini-2.0-flash-lite')
+export const openAiModelMini = openai('gpt-4o-mini')
 
 // Process natural language commands using LLM
 export async function POST(request: NextRequest) {

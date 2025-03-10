@@ -1,6 +1,6 @@
 import { needAuth } from '@/lib/auth'
 import connectDB from '@/lib/db'
-import { Todo } from '@/lib/models/todo'
+import { ITodo, Todo } from '@/lib/models/todo'
 import { tool } from 'ai'
 import { z } from 'zod'
 import { fuzzyMatchSingleTodo } from './utils'
@@ -9,9 +9,9 @@ interface ToolResult {
   success: boolean
   message?: string
   error?: string
-  todo?: any
+  todo?: ITodo
   count?: number
-  todos?: any[]
+  todos?: ITodo[]
 }
 
 export const todoTools = {

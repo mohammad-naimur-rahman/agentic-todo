@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import Cookies from 'js-cookie'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 
 export default function Signin() {
   const router = useRouter()
@@ -25,7 +25,7 @@ export default function Signin() {
     }
   }, [callbackUrl, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
