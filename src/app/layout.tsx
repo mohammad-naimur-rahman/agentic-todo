@@ -1,6 +1,6 @@
 import PwaInstall from '@/components/PwaInstall'
 import ReduxProvider from '@/redux/redux-provider'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ReactNode } from 'react'
 import { Toaster } from 'sonner'
@@ -23,7 +23,10 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     apple: '/icons/icon-192x192.png'
-  },
+  }
+}
+
+export const viewport: Viewport = {
   themeColor: '#000000'
 }
 
