@@ -164,7 +164,7 @@ export function TodoList() {
   }
 
   return (
-    <div className='w-full max-w-lg mx-auto flex flex-col h-[72vh]'>
+    <div className='w-full max-w-lg mx-auto flex flex-col h-[70vh]'>
       {/* Todo List - Scrollable */}
       <div className='flex-grow overflow-y-auto my-4 pr-1'>
         <div className='space-y-1 relative'>
