@@ -80,7 +80,7 @@ export default function PwaInstall() {
   return (
     <button
       onClick={handleInstallClick}
-      className='fixed top-4 right-4 z-50 flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90'
+      className='fixed top-4 right-4 z-50 flex items-center gap-1 rounded-md bg-transparent px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 cursor-pointer'
       aria-label='Install App'
     >
       <IconDownload size={16} />
