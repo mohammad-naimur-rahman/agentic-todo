@@ -12,7 +12,7 @@ export async function GET() {
       return NextResponse.json({ error }, { status: 401 })
     }
     const todos = await Todo.find({ userId: userId }).sort({
-      createdAt: -1
+      createdAt: 1
     })
     return NextResponse.json({ todos }, { status: 200 })
   } catch (error) {
