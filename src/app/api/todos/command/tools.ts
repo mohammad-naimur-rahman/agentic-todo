@@ -75,7 +75,6 @@ export const todoTools = {
       toMarkAsCompleted: boolean
       fromEnd: boolean
     }): Promise<ToolResult> => {
-      console.log({ toMarkAsCompleted, fromEnd })
       if (!global.mongoose?.conn) {
         await connectDB()
       }
@@ -83,13 +82,11 @@ export const todoTools = {
       if (!success) return { success: false, error: 'Unauthorized' }
 
       const todos = await Todo.find({ userId })
-        .sort({ createdAt: fromEnd ? 'asc' : 'desc' })
+        .sort({ createdAt: fromEnd ? -1 : 1 })
         .limit(1)
         .select('_id text')
 
       if (!todos.length) return { success: false, error: 'No todos found' }
-
-      console.log(todos)
 
       const matchedTodo = todos[0]
       await Todo.updateOne(
@@ -135,7 +132,7 @@ export const todoTools = {
       if (!success) return { success: false, error: 'Unauthorized' }
 
       const todos = await Todo.find({ userId })
-        .sort({ createdAt: fromEnd ? 'asc' : 'desc' })
+        .sort({ createdAt: fromEnd ? -1 : 1 })
         .limit(1)
         .select('_id')
 
