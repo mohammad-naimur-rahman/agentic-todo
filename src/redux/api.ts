@@ -7,7 +7,7 @@ import {
 import { tagTypes } from './tagTypes'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000/api'
+  baseUrl: process.env.BASE_URL + '/api'
 })
 
 const baseQueryWithReauth = async (
